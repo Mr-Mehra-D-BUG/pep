@@ -17,7 +17,11 @@
 
 const mongoose = require("mongoose");
 let dbLink =
+<<<<<<< HEAD
   "mongodb+srv://ItsCodewithDEv:<password>@cluster0.pcgdr.mongodb.net/?retryWrites=true&w=majority";
+=======
+  "mongodb+srv://ItsCodewithDEv:vo3KOPl7ru1MTayf@cluster0.pcgdr.mongodb.net/?retryWrites=true&w=majority";
+>>>>>>> 59cf5ba2d73135c5f4701c1a8f419c5e19444805
 mongoose
   .connect(dbLink)
   .then(function () {
