@@ -34,7 +34,9 @@
  ## Frontend : React.js
  ## Backend  : Express.js
  ## Deployment : 
-* Backend  : Heroku
+ * Backend  : Heroku
  * Frontend : Netlify
  * Codebase : Github
  * Database Server : MongoDB Atlas     
+## Further improvement : 
+  * videos , feedback , meal level. 

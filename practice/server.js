@@ -5,7 +5,7 @@ app.use(express.json());
 
 
 app.get("/sayhello" , function(req , res){ // this function will invoke when /sayhello route will call
-     // response goes to fronend
+     // response goes to frontend
      console.log("data", req.body);
     res.end("hello from server")
 })
