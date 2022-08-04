@@ -12,15 +12,23 @@ const userModel = require("./userModel");
    Pic,
 
    */
+  
  app.use(express.json());
    app.post('/signup' , async function(req ,res){
+    try{ 
     let data = req.body;
     console.log(data);
     // create data in to database
   let newUser = await  userModel.create(data)
   console.log(newUser);
     res.end("data recived");
+    } catch(err){
+      res.end(err.message);
+    }
+
+
    })
+  
 
    // log-in input => email + password 
 

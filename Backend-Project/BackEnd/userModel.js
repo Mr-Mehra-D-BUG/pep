@@ -27,39 +27,49 @@ mongoose.connect(dbLink)
   // how to define schema => those entry written here only thoes entry allow in dataBase nothing more nothing less.
 let userSchema = new mongoose.Schema({
   name: {
-      type : String,
-      required : true,
+    type: String,
+    required: [true, " name is missing"],
   },
-  password :{
-      type : String,
-      required : true,
+  password: {
+    type: String,
+    required: [true, " password is not enterd"],
   },
-  ConfirmPassword : {
-     type : String,
-     required : true,
+  ConfirmPassword: {
+    type: String,
+    required: [true, "confim password is missing"],
+    // custom validator
+    validate: {
+      validator: function () {
+        // returns : true if value matched
+        // returns : false if vaule is'nt matched.
+        if (this.password == this.ConfirmPassword) {
+          return true;
+        } else {
+          return false;
+        }
+      },
+      message: "password is missmatch",
+    },
   },
-  email :{
-         type : String,
-         required : true,
-         unque : true
+  email: {
+    type: String,
+     unique : true,
+    required: [true, "Email is not enterd"],
+   
   },
-  phoneNumber :{
-      type : String,
-      minLength : 10,
-      max : 10,
-
+  phoneNumber: {
+    type: String,
+    minLength: 10,
+    max: 10,
   },
-  address :{
-     type : String,
+  address: {
+    type: String,
   },
-  pic :{
-     type : String , // because route/address will add here
-     default : "itachi.jpg"
-  }
-
-
-
+  pic: {
+    type: String, // because route/address will add here
+    default: "itachi.jpg",
+  },
 });
-
-const userModel = mongoose.model('FoodModel', userSchema);
+// Model is nothing but similar to collection. it create collection using set of rules .. like given below (collection= foodmodel && Schema/rules => userSchema)
+const userModel = mongoose.model('FoodModel', userSchema); // this line will create model/ collection name Foodmodel who follows userSchema rules.
 module.exports = userModel;
