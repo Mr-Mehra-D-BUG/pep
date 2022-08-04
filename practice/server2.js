@@ -26,7 +26,7 @@ const app = express();
 
 // ##################################################  user defined middleware ########################################################
 
-// app.use(function(req ,res){ // user deinde middleware => this is user defined midlleware.
+// app.use(function(req ,res){ // user defined middleware => this is user defined midlleware.
 //     console.log("use will always run");
 //   // req stucked here
 // });
