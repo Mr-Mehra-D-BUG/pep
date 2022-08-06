@@ -42,13 +42,15 @@ let userSchema = new mongoose.Schema({
       validator: function () {
         // returns : true if value matched
         // returns : false if vaule is'nt matched.
-        if (this.password == this.ConfirmPassword) {
+        if (this.password == this.ConfirmPassword) {  // this is currunt entry enterd by user
           return true;
-        } else {
+        } 
+        else {
+    
           return false;
         }
-      },
-      message: "password is missmatch",
+    },
+            message: "password is missmatch"
     },
   },
   email: {
@@ -72,4 +74,8 @@ let userSchema = new mongoose.Schema({
 });
 // Model is nothing but similar to collection. it create collection using set of rules .. like given below (collection= foodmodel && Schema/rules => userSchema)
 const userModel = mongoose.model('FoodModel', userSchema); // this line will create model/ collection name Foodmodel who follows userSchema rules.
-module.exports = userModel;
+module.exports = userModel;         
+
+
+
+
