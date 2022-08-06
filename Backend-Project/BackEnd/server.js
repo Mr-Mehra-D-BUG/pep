@@ -31,12 +31,12 @@ const userModel = require("./userModel");
 
 
    // log-in input => email + password 
-app.post('/login' , function(req , res){
+app.post('/login' , async function(req , res){
     try{
          let data = req.body;
-         let {email,password} = data;
-         if(email && password){
-             let user  = userModel.findOne({email : email});   // findOne() is a query for finding property 
+         let { email, password } = data;
+         if(email&&password){
+             let user  =await userModel.findOne({email : email});   // findOne() is a query for finding property 
              if(user){  // if with that email id user is available in server so do somthing else user need to signup first. 
                  if(user.password === password){
                   res.send("user loged in");
