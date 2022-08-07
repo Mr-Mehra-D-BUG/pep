@@ -82,7 +82,7 @@ app.get('/user', protectRout , async function(req , res){
 })
 
 function protectRout(req , res , next){
-   console.log(req.cookie);
+   console.log(req.cookies);
   console.log("protectRout Encounter");
   // if you're loged in than you will go further function.
   next();
