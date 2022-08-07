@@ -43,7 +43,7 @@ app.post('/login' , async function(req , res){
              let user  =await userModel.findOne({email : email});   // findOne() is a query for finding property 
              if(user){  // if with that email id user is available in server so do somthing else user need to signup first. 
                  if(user.password === password){
-                  res.cookie('token',"sample value");
+                  res.cookie('token',"sample value"); // res to clint with token inside the cookie
                   res.send("user loged in");
                  }
                  else{
@@ -82,7 +82,7 @@ app.get('/user', protectRout , async function(req , res){
 })
 
 function protectRout(req , res , next){
-  console.log(req.cookie);
+   console.log(req.cookie);
   console.log("protectRout Encounter");
   // if you're loged in than you will go further function.
   next();
