@@ -1,6 +1,9 @@
 const express = require("express");
 const app = express();
+// userModel with userSchema && and DataBase  Connection
 const userModel = require("./userModel");
+// npm install cookie-parser ( used for json web token )
+const cookiePraser = require('cookie-parser');
 // sign up =>
 /* input :
    name,
@@ -14,6 +17,7 @@ const userModel = require("./userModel");
    */
   
    app.use(express.json());
+   app.use(cookiePraser());
    app.post('/signup' , async function(req ,res){
     try{ 
     let data = req.body;
@@ -39,6 +43,7 @@ app.post('/login' , async function(req , res){
              let user  =await userModel.findOne({email : email});   // findOne() is a query for finding property 
              if(user){  // if with that email id user is available in server so do somthing else user need to signup first. 
                  if(user.password === password){
+                  res.cookie('token',"sample value");
                   res.send("user loged in");
                  }
                  else{
@@ -60,6 +65,28 @@ app.post('/login' , async function(req , res){
     }
 
 })
+
+
+//user data => get all user data => sensitive data => add midlleware with in it => only loged in user get that data 
+
+app.get('/user', protectRout , async function(req , res){
+  try {
+      let users =  await userModel.find();
+      console.log(users);
+      res.json(users);  // to send json data
+
+  } catch (error) {
+    res.end(err.message);
+  }
+ 
+})
+
+function protectRout(req , res , next){
+  console.log(req.cookie);
+  console.log("protectRout Encounter");
+  // if you're loged in than you will go further function.
+  next();
+}
 
 
 // creating a server at port number 3000
