@@ -166,12 +166,39 @@ app.patch("/forgotPassword" , async function(req , res){
 });
 
 
-// otp genrator function =>
+// otp genrator function for forgot password =>
 
 function generateOtp(){
-  let otp = Math.trunc(100000 +Math.random() * 900000);
+  const otp = Math.trunc(100000 +Math.random() * 900000);
   return otp;
 }
+
+// reset password using otp as an token =>
+
+app.patch("/restPassword" , async function(req , res){
+ try{
+   let data = req.body;
+  let { otp, password, ConfirmPassword } = data;
+  
+  // find with otp and upadte pass and confirm pass
+  let user = await userModel.findOneAndUpdate(
+    { otp }, // find
+    { password, ConfirmPassword, otp: undefined }, // pass and confirm pass added and  otp removed using undefined
+    // {new : true } add new value in document
+    { runValidators: true, new: true } // default validator not working without {runValidators : true} eg: confirm pass won't match because validator not come into action with this .
+  );
+
+   console.log(user);
+
+   res.json({
+        data : user,
+        message : "New password successfully addded"
+   });
+
+ } catch(err){
+  res.send(err.message);
+ }
+})
 
 
 // creating a server at port number 3000
