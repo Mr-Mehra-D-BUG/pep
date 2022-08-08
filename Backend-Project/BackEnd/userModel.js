@@ -71,6 +71,9 @@ let userSchema = new mongoose.Schema({
     type: String, // because route/address will add here
     default: "itachi.jpg",
   },
+  otp:{
+    type : String
+  },
 });
 // Model is nothing but similar to collection. it create collection using set of rules .. like given below (collection= foodmodel && Schema/rules => userSchema)
 const userModel = mongoose.model('FoodModel', userSchema); // this line will create model/ collection name Foodmodel who follows userSchema rules.

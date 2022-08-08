@@ -24,7 +24,7 @@ const { model } = require("mongoose");
 
 app.use(express.json());
 app.use(cookiePraser());
-
+ // singnup and create documenet  at foodmodel 
 app.post("/signup", async function (req, res) {
   try {
     let data = req.body;
@@ -74,7 +74,7 @@ app.post("/login", async function (req, res) {
   }
 });
 
-//user data => get all user data => sensitive data => add midlleware with in it => only loged in user get that data
+//users data => get all user data => sensitive data => add midlleware with in it => only loged in user get that data
 
 app.get("/users", protectRoute, async function (req, res) {
   try {
@@ -86,19 +86,21 @@ app.get("/users", protectRoute, async function (req, res) {
   }
 });
 
-// get user data who is loged in current time =>
+// get user data =>  who is loged in current time .
 
-app.post("/user", protectRoute, async function (req, res) {
+app.get("/user", protectRoute, async function (req, res) {
   try {
     // let data = req.body;
     // let { email } = data;
     // let user = await userModel.findOne({ email: email });   // using email id
     // let id = user["_id"];
     //  console.log(user);
-    const id  = req.userId;   // req.userId object created by protectRout ( if any route change req object then that change occures for all route )
+
+    // req.userId object created by protectRout ( if any route change req object then that change occures for all route )
+    const id = req.userId;
     let user = await userModel.findById(id); // finding user by using id of user
-          console.log(user);
-   
+    console.log(user);
+
     res.send({
       data: user,
       message: "This the user who loged in.",
@@ -108,24 +110,26 @@ app.post("/user", protectRoute, async function (req, res) {
   }
 });
 
+
+// as middleware for checking user verification. is user loged-in or not.  
 function protectRoute(req, res, next) {
   try {
     const cookie = req.cookies; // cookie from client side
     const JWT = cookie.JWT; // getting JWT from cookie
 
-      if (cookie.JWT) {
-        console.log("protectRout Encounter");
-        const token = jwt.verify(JWT, secrets.JWTSECRET); // verifying the token using secret key
-        console.log("Deycrpted JWT", token);
+    if (cookie.JWT) {
+      console.log("protectRout Encounter");
+      const token = jwt.verify(JWT, secrets.JWTSECRET); // verifying the token using secret key
+      console.log("Deycrpted JWT", token);
 
-       // req object changed with new prpoerty reqUserId
-        const userID = token.data; // current users id from tokens payload section
-        console.log(userID);
-        req.userId = userID;   
+      // req object changed with new prpoerty reqUserId
+      const userID = token.data; // current users id from tokens payload section
+      console.log(userID);
+      req.userId = userID;
 
-        // if you're loged in than you will go further function.
-        next();
-      } else {
+    // if you're loged in than you will go next handle.
+      next();
+    } else {
       res.send("You are not loged in kindly loged in first.");
     }
   } catch (error) {
@@ -137,6 +141,38 @@ function protectRoute(req, res, next) {
     }
   }
 }
+
+
+// forgot password =>
+
+app.patch("/forgotPassword" , async function(req , res){
+   try {
+        let data = req.body;
+        let { email } = data;
+        let otp = generateOtp();
+        let user = await userModel.findOneAndUpdate(
+          { email: email },
+          { otp: otp },
+          { new: true }
+        ); // email will find from FoodModel and update token(otp) at the document using {new: true}
+        console.log(user);
+        res.json({
+          data: user,
+          message: "otp has added at the document",
+        });
+   } catch (err) {
+     res.end(err.message);
+   }
+});
+
+
+// otp genrator function =>
+
+function generateOtp(){
+  let otp = Math.trunc(100000 +Math.random() * 900000);
+  return otp;
+}
+
 
 // creating a server at port number 3000
 
