@@ -76,7 +76,7 @@ app.post("/login", async function (req, res) {
 
 //user data => get all user data => sensitive data => add midlleware with in it => only loged in user get that data
 
-app.get("/user", protectRoute, async function (req, res) {
+app.get("/users", protectRoute, async function (req, res) {
   try {
     let users = await userModel.find();
     console.log(users);
@@ -88,14 +88,17 @@ app.get("/user", protectRoute, async function (req, res) {
 
 // get user data who is loged in current time =>
 
-app.post("/users", protectRoute, async function (req, res) {
+app.post("/user", protectRoute, async function (req, res) {
   try {
-    let data = req.body;
-    let { email } = data;
-    let user = await userModel.findOne({ email: email });
-    let id = user["_id"];
-    console.log(user);
-
+    // let data = req.body;
+    // let { email } = data;
+    // let user = await userModel.findOne({ email: email });   // using email id
+    // let id = user["_id"];
+    //  console.log(user);
+    const id  = req.userId;   // req.userId object created by protectRout ( if any route change req object then that change occures for all route )
+    let user = await userModel.findById(id); // finding user by using id of user
+          console.log(user);
+   
     res.send({
       data: user,
       message: "This the user who loged in.",
@@ -111,13 +114,18 @@ function protectRoute(req, res, next) {
     const JWT = cookie.JWT; // getting JWT from cookie
 
       if (cookie.JWT) {
-      console.log("protectRout Encounter");
-      const token = jwt.verify(JWT, secrets.JWTSECRET); // verifying the token using secret key
-      console.log("Deycrpted JWT" ,token);
+        console.log("protectRout Encounter");
+        const token = jwt.verify(JWT, secrets.JWTSECRET); // verifying the token using secret key
+        console.log("Deycrpted JWT", token);
 
-      // if you're loged in than you will go further function.
-      next();
-    } else {
+       // req object changed with new prpoerty reqUserId
+        const userID = token.data; // current users id from tokens payload section
+        console.log(userID);
+        req.userId = userID;   
+
+        // if you're loged in than you will go further function.
+        next();
+      } else {
       res.send("You are not loged in kindly loged in first.");
     }
   } catch (error) {
