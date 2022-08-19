@@ -6,7 +6,7 @@ const userModel = require("./userModel");
 const cookiePraser = require("cookie-parser");
 // jwt ( for genrating token)
 const jwt = require("jsonwebtoken");
-// secret ki file importing
+// secret key file importing
 const secrets = require("./secret");
 const secret = require("./secret");
 const { model } = require("mongoose");
@@ -24,7 +24,7 @@ const { model } = require("mongoose");
 
 app.use(express.json());
 app.use(cookiePraser());
- // singnup and create documenet  at foodmodel 
+// singnup and create document  at foodmodel
 app.post("/signup", async function (req, res) {
   try {
     let data = req.body;
@@ -43,8 +43,10 @@ app.post("/login", async function (req, res) {
   try {
     let data = req.body;
     let { email, password } = data;
+
     if (email && password) {
       let user = await userModel.findOne({ email: email }); // findOne() is a query for finding property
+
       if (user) {
         // if with that email id user is available in server so do somthing else user need to signup first.
         if (user.password === password) {
@@ -69,7 +71,7 @@ app.post("/login", async function (req, res) {
     } else {
       res.end("kindly enter email and password both");
     }
-  } catch (error) {
+  } catch (err) {
     res.end(err.message);
   }
 });
@@ -79,7 +81,7 @@ app.post("/login", async function (req, res) {
 app.get("/users", protectRoute, async function (req, res) {
   try {
     let users = await userModel.find();
-    console.log(users);
+    // console.log(users);
     res.json(users); // to send json data
   } catch (error) {
     res.end(err.message);
@@ -96,7 +98,7 @@ app.get("/user", protectRoute, async function (req, res) {
     // let id = user["_id"];
     //  console.log(user);
 
-    // req.userId object created by protectRout ( if any route change req object then that change occures for all route )
+    // req.userId object created by protectRout ( if any route change in req object then that change will occures for all route )
     const id = req.userId;
     let user = await userModel.findById(id); // finding user by using id of user
     console.log(user);
@@ -110,14 +112,13 @@ app.get("/user", protectRoute, async function (req, res) {
   }
 });
 
-
-// as middleware for checking user verification. is user loged-in or not.  
+// as middleware for checking user verification. is user loged-in or not.
 function protectRoute(req, res, next) {
   try {
     const cookie = req.cookies; // cookie from client side
     const JWT = cookie.JWT; // getting JWT from cookie
 
-    if (cookie.JWT) {
+    if (JWT) {
       console.log("protectRout Encounter");
       const token = jwt.verify(JWT, secrets.JWTSECRET); // verifying the token using secret key
       console.log("Deycrpted JWT", token);
@@ -125,9 +126,9 @@ function protectRoute(req, res, next) {
       // req object changed with new prpoerty reqUserId
       const userID = token.data; // current users id from tokens payload section
       console.log(userID);
-      req.userId = userID;
+      req.userId = userID; // new property for req.userId = userID
 
-    // if you're loged in than you will go next handle.
+      // if you're loged in than you will go next handle.
       next();
     } else {
       res.send("You are not loged in kindly loged in first.");
@@ -142,67 +143,108 @@ function protectRoute(req, res, next) {
   }
 }
 
-
 // forgot password =>
 
-app.patch("/forgotPassword" , async function(req , res){
-   try {
-        let data = req.body;
-        let { email } = data;
-        let otp = generateOtp();
-        let user = await userModel.findOneAndUpdate(
-          { email: email },
-          { otp: otp },
-          { new: true }
-        ); // email will find from FoodModel and update token(otp) at the document using {new: true}
-        console.log(user);
-        res.json({
-          data: user,
-          message: "otp has added at the document",
-        });
-   } catch (err) {
-     res.end(err.message);
-   }
-});
+app.patch("/forgotPassword", async function (req, res) {
+  try {
+    let data = req.body;
 
+    let { email } = data;
+    let FiveMinute = Date.now() + 5 * 60 * 1000;
+    console.log(Date.now());
+    let otp = generateOtp();
+    let user = await userModel.findOneAndUpdate(
+      { email: email },
+      { otp: otp, otpExpiry: FiveMinute },
+      { new: true }
+    ); // email will find from FoodModel and update token(otp) at the document using {new: true}
+    console.log(user);
+    res.json({
+      data: user,
+      message: "otp send to your mail",
+    });
+  } catch (err) {
+    res.end(err.message);
+  }
+});
 
 // otp genrator function for forgot password =>
 
-function generateOtp(){
-  const otp = Math.trunc(100000 +Math.random() * 900000);
+function generateOtp() {
+  const otp = Math.trunc(100000 + Math.random() * 900000); // six digit number 1-9
   return otp;
 }
 
 // reset password using otp as an token =>
 
-app.patch("/restPassword" , async function(req , res){
- try{
-   let data = req.body;
-  let { otp, password, ConfirmPassword } = data;
-  
-  // find with otp and upadte pass and confirm pass
-  let user = await userModel.findOneAndUpdate(
-    { otp }, // find
-    { password, ConfirmPassword, otp: undefined }, // pass and confirm pass added and  otp removed using undefined
-    // {new : true } add new value in document
-    { runValidators: true, new: true } // default validator not working without {runValidators : true} eg: confirm pass won't match because validator not come into action with this .
-  );
+app.patch("/restPassword", async function (req, res) {
+  try {
+    let data = req.body;
+    let { otp, password, ConfirmPassword, email } = data;
 
-   console.log(user);
+    let user = userModel.findOne(email);
 
-   res.json({
-        data : user,
-        message : "New password successfully addded"
-   });
+    // getting current time for comperison
+    const currTime = Date.now();
+    // getting otp exprie time durtaion given to user from document.
+    let givenTime = user.otpExpiry;
+    // check when time limit exeed then remove the otp and otpExpiry from user document.
+    if (currTime > givenTime) {
+      // expire the otp , delete from  user document
+      user.otp = undefined;
 
- } catch(err){
-  res.send(err.message);
- }
-})
+      /*
+      also write like that =>
+        delete user.otp;
+       delete user.otpExpiry;
 
+      */
+      // and also otpExpiry
+      user.otpExpiry = undefined;
+      // all code above and changes occures in express server code base it will not update for data base.. for that user.save() used
+      // user.save() reponsible for update in server whatever change occures users document in api server.hence without this confirm pass and pass not matched
+      await user.save();
+      // res to user
+      res.json({
+        data: user,
+        message: "otp is Exipred please try again",
+      });
+    }
+    // check when time and otp is under protocol .
+    else {
+      if (user.otp != otp) {
+        res.json({
+          message: "otp dose not match",
+        });
+      } else {
+        // find with otp and update pass and confirm pass
+        user = await userModel.findOneAndUpdate(
+          { otp }, // find
+          { password, ConfirmPassword }, // pass and confirm pass added
+          // {new : true } add new value in document
+          { runValidators: true, new: true } // default validator not working without {runValidators : true} eg: confirm pass won't match because validator not come into action with this .
+        );
+
+        // Delete key from DB  => get otp key and delete becasue there is no use of that after new password update.
+        user.otp = undefined;
+        // save all the update in to the document in to DB
+        user.otpExpiry = undefined;
+        // save the update.
+        await user.save();
+        // response to the user.
+        res.json({
+          data: user,
+          message: "Password is Succesfully Reset",
+        });
+      }
+    }
+    console.log(user);
+  } catch (err) {
+    res.send(err.message);
+  }
+});
 
 // creating a server at port number 3000
-
 app.listen(3000, function () {
   console.log("This is from Port 3000");
 });

@@ -1,5 +1,5 @@
 // ############################################################ midlleware ###########################################################################
-// midllewar are teh function to change req and res lifecycle.
+// midlleware are teh function to change req and res lifecycle.
 
 // makeing a midlleware to check either req has data or not =>
 
@@ -10,7 +10,8 @@ app.use(express.json());
 // user define midlle ware for post route => postRoute
 app.post("/postRoute" , function(req , res ,next){
   let data = req.body;
-  let length = Object.keys(data).length;
+
+  let length = Object.values(data).length;
   // Object.keys =>  [name, age , email]  retruns keys as array.
   if (length == 0) {
     res.end("enter the data at post body");
