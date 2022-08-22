@@ -1,74 +1,22 @@
-const express = require("express");
-const app = express();
-// userModel with userSchema && and DataBase  Connection
-const userModel = require("./userModel");
-// npm install cookie-parser ( used for json web token )
-const cookiePraser = require("cookie-parser");
+const userModel = require("../Model/userModel");
 // jwt ( for genrating token)
 const jwt = require("jsonwebtoken");
 // secret key file importing
-const secrets = require("./secret");
-const secret = require("./secret");
-const { model } = require("mongoose");
-//using Router() function for reducing route path =>
-// for authentiction routes like login signup.
-// const AuthRoute = express.Router();
-// // for user accesse part eg profile and
-// const userRoute = express.Router();
+const secrets = require("../secret");
+const secret = require("../secret");
+// ******************************** controller function ****************************\\
 
 // sign up =>
 /* input :
    name,
    password
    confirm -password,
-   Address,
+   Address, 
    Email,
    Phone Number ,
    Pic,
 
    */
-
-app.use(express.json());
-app.use(cookiePraser());
-
-//setting routers name. 
-
-// singnup and create document  at foodmodel
-app.post("/signup", signupController);
-
-// log-in input => email + password
-app.post("/login", loginController);
-
-//users data => get all user data => sensitive data => add midlleware with in it => only loged in user get that data
-app.get("/users", protectRoute, getAlluserController);
-
-// get user data =>  who is loged in current time .
- app.get("/user", protectRoute, profileController);
-
-
-// forgot password =>
-app.patch("/forgotPassword", forgotPasswordController);
-
-// reset password using otp as an token =>
-app.patch("/restPassword", resetController);
-
-
-// otp genrator function for forgot password =>
-function generateOtp() {
-  const otp = Math.trunc(100000 + Math.random() * 900000); // six digit number 1-9
-  return otp;
-}
-
-
-
-
-
-// creating a server at port number 3000
-app.listen(3000, function () {
-  console.log("This is from Port 3000");
-});
-
-// ********************************controller function ****************************\\
 async function signupController(req, res) {
   try {
     let data = req.body;
@@ -144,38 +92,6 @@ async function forgotPasswordController(req, res) {
   }
 }
 
-async function profileController(req, res) {
-  try {
-    // let data = req.body;
-    // let { email } = data;
-    // let user = await userModel.findOne({ email: email });   // using email id
-    // let id = user["_id"];
-    //  console.log(user);
-
-    // req.userId object created by protectRout ( if any route change in req object then that change will occures for all route )
-    const id = req.userId;
-    let user = await userModel.findById(id); // finding user by using id of user
-    console.log(user);
-
-    res.send({
-      data: user,
-      message: "This the user who loged in.",
-    });
-  } catch (error) {
-    res.send(error.message);
-  }
-}
-
-async function getAlluserController(req, res) {
-  try {
-    let users = await userModel.find();
-    // console.log(users);
-    res.json(users); // to send json data
-  } catch (error) {
-    res.end(err.message);
-  }
-}
-
 async function resetController(req, res) {
   try {
     let data = req.body;
@@ -245,6 +161,7 @@ async function resetController(req, res) {
     res.send(err.message);
   }
 }
+
 // as middleware for checking user verification. is user loged-in or not.
 function protectRoute(req, res, next) {
   try {
@@ -274,4 +191,19 @@ function protectRoute(req, res, next) {
       res.send(error.message);
     }
   }
+}
+
+module.exports = {
+  signupController,
+  loginController,
+  forgotPasswordController,
+  resetController,
+  protectRoute,
+};
+
+//************ Helper Function **********************/
+// otp genrator function for forgot password =>
+function generateOtp() {
+  const otp = Math.trunc(100000 + Math.random() * 900000); // six digit number 1-9
+  return otp;
 }

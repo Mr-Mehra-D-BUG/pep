@@ -1,0 +1,29 @@
+//using Router() function for reducing route path =>
+// for authentiction routes like login signup.
+const AuthRoute = express.Router();
+// for user accesse part eg profile and user data
+const userRoute = express.Router();
+
+// singnup and create document  at foodmodel
+AuthRoute.post("/signup", signupController); // this is also same => app.post("/api/v1/signup" ,signupController);
+
+// log-in input => email + password
+AuthRoute.post("/login", loginController); // this is also same => app.post("/api/v1/login" ,loginController);
+
+//users data => get all user data => sensitive data => add midlleware with in it => only loged in user get that data
+userRoute.get("/users", protectRoute, getAlluserController); // this is also same => app.get("/api/v1/users" ,protectRoute ,getAlluserController);
+
+// get user data =>  who is loged in current time .
+userRoute.get("/user", protectRoute, profileController); // this is also same => app.get("/api/v1/user" ,protectRoute ,profileController);
+
+// forgot password =>
+AuthRoute.patch("/forgotPassword", forgotPasswordController);
+
+// reset password using otp as an token =>
+AuthRoute.patch("/restPassword", resetController);
+
+// otp genrator function for forgot password =>
+function generateOtp() {
+  const otp = Math.trunc(100000 + Math.random() * 900000); // six digit number 1-9
+  return otp;
+}
