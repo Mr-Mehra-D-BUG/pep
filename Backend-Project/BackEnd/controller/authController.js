@@ -42,17 +42,21 @@ async function loginController(req, res) {
         // if with that email id user is available in server so do somthing else user need to signup first.
         if (user.password === password) {
           //create JWT ==>  paylod (_id) + secret key(secrets.JWTSECRET) + by dafault algo SHA256
-
+         console.log(user);
           const token = jwt.sign(
             {
               data: user["_id"],
               exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24,
-            }, // for the 24 hr valid only using that formula in it.
-            secrets.JWTSECRET
+            },
+            secrets.JWTSECRET // for the 24 hr valid only using that formula in it.
           );
 
           res.cookie("JWT", token); // res to clint with token inside the cookie
-          res.send("user loged in");
+          user.password = undefined;
+          user.ConfirmPassword = undefined;
+          res.status(200).json({
+            user
+          });
         } else {
           res.send("Email and password does not matched");
         }
@@ -72,17 +76,15 @@ async function forgotPasswordController(req, res) {
     let data = req.body;
 
     let { email } = data;
-    // let test = await userModel.findOne(email);
-    // console.log(test);
+    
     let FiveMinute = Date.now() + 5 * 60 * 1000;
-    console.log(Date.now());
     let otp = generateOtp();
     let user = await userModel.findOneAndUpdate(
       { email: email },
       { otp: otp, otpExpiry: FiveMinute },
       { new: true }
     ); // email will find from FoodModel and update token(otp) at the document using {new: true}
-    console.log(user);
+  
     res.json({
       data: user,
       message: "otp send to your mail",
@@ -92,30 +94,29 @@ async function forgotPasswordController(req, res) {
   }
 }
 
+
+
 async function resetController(req, res) {
   try {
     let data = req.body;
     let { otp, password, ConfirmPassword, email } = data;
 
     let user = await userModel.findOne({ email });
-    console.log(user);
 
-    // getting current time for comperison
+    // store current time for comperison
     const currTime = Date.now();
-    // getting otp exprie time durtaion given to user from document.
+    // getting otp expriy time durtaion given to user from document.
     let givenTime = user.otpExpiry;
 
     // check when time limit exeed then remove the otp and otpExpiry from user document.
     if (currTime > givenTime) {
       // expire the otp , delete from  user document
-      user.otp = undefined;
-
-      /*
+          user.otp = undefined;
+     /*
       also write like that =>
         delete user.otp;
        delete user.otpExpiry;
-
-      */
+     */
       // and also otpExpiry
       user.otpExpiry = undefined;
       // all code above and changes occures in express server code base it will not update for data base.. for that user.save() used

@@ -13,8 +13,9 @@ app.use(express.json());
 app.use(cookiePraser());
 // for authentiction routes like login signup.
 app.use("/api/v1/auth", authRouter);
+// for user accesse part eg profile and users data
 app.use("/api/v1/user", userRouter);
-// for user accesse part eg profile and
+
 
 // creating a server at port number 3000
 app.listen(3000, function () {

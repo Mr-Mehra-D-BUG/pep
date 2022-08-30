@@ -1,7 +1,7 @@
 // 1: Project Knowladge :
 // User Data => Store
 // Name ,
-// Emial,
+// Email,
 // Password
 // Pic
 // Address
@@ -16,17 +16,18 @@
 // mongooes :
 
 const mongoose = require("mongoose");
-let dbLink =
-  "mongodb+srv://ItsCodewithDEv:sydbWrrJORdTL3XD@cluster0.pcgdr.mongodb.net/?retryWrites=true&w=majority";
+const secret = require("../secret");
+
+
 mongoose
-  .connect(dbLink)
+  .connect(secret.DB_LINK)
   .then(function () {
     console.log("connected");
   })
   .catch(function () {
     console.log("error", "err");
   });
-// how to define schema => those entry written here only thoes entry allow in dataBase nothing more nothing less.
+// how to define schema => which entries written here only thoes entry allow in dataBase nothing more nothing less.
 let userSchema = new mongoose.Schema({
   name: {
     type: String,
