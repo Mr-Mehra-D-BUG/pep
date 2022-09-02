@@ -57,8 +57,8 @@ let userSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    unique: true,
     required: [true, "Email is not enterd"],
+    unique: true,
   },
   phoneNumber: {
     type: String,

@@ -13,13 +13,14 @@ function AuthProvider({ children }) {
   // const history = useHistory();
   const [user, userSet] = useState("");
   const [loading, setLoading] = useState(false);
+ 
   async function signUp(name, password, email, confirm) {
     try {
-      console.log("signup will be here111");
+      console.log("signup will be here");
       let res = await axios.post("/api/v1/auth/signup", {
         name: name,
         password: password,
-        confirmPassword: confirm,
+        ConfirmPassword: confirm,
         email,
       });
       console.log("data", res.data);
@@ -29,24 +30,41 @@ function AuthProvider({ children }) {
   }
 
   async function login(email, password) {
+    let flag = true;
     try {
       setLoading(true);
-      const res = await axios.post("/api/v1/auth/login", {
+       const res = await axios.post("/api/v1/auth/login", {
         email: email,
         password: password,
       });
+      
+       if(res.status ==404){
+             alert("user not found kindly signup");
+            flag=false;
+      } else if(res.status ==400){
+         alert("Password or email may be wrong");
+         flag = false;
+      } else if(res.status == 500){
+        alert("Internal server error")
+         flag = false;
+      } else{
+       
+            userSet(res.data.user);        
+      }
       setLoading(false);
-      console.log("40",res.data);
-      userSet(res.data.user);
+    // console.log("40",res.data);
+       return flag;
     } catch (err) {
+       console.log("ee", flag);
       console.log(err);
       setLoading(false);
     }
+   
     console.log("login will be here");
   }
   function logout() {
-    // localStorage.removeItem("user")
-    // userSet(null);
+    localStorage.removeItem("user")
+    userSet(null);
     console.log("logout will come here");
   }
 

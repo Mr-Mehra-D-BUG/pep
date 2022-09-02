@@ -34,15 +34,15 @@ async function loginController(req, res) {
   try {
     let data = req.body;
     let { email, password } = data;
-
+        
     if (email && password) {
       let user = await userModel.findOne({ email: email }); // findOne() is a query for finding property
-
+         
       if (user) {
         // if with that email id user is available in server so do somthing else user need to signup first.
-        if (user.password === password) {
+          if (user.password === password) {
           //create JWT ==>  paylod (_id) + secret key(secrets.JWTSECRET) + by dafault algo SHA256
-         console.log(user);
+      
           const token = jwt.sign(
             {
               data: user["_id"],
@@ -57,17 +57,35 @@ async function loginController(req, res) {
           res.status(200).json({
             user
           });
+
         } else {
-          res.send("Email and password does not matched");
+          // 1 status code
+         res.status(400).json({
+          result: "password does not matched"
+         })
         }
       } else {
-        res.send("user with this email id not found please signup first.");
+      // send status code instead of res.send(msg);
+      // 2nd status code when user not found
+    
+       res.status(404).json({
+        result: "user not found"
+      });
+
       }
     } else {
-      res.end("kindly enter email and password both");
+      // 3rd status code when somthing wrong or missing. 
+      res.status(400).json({
+        result: "user not found kindly signup"
+      })
+
     }
   } catch (err) {
-    res.end(err.message);
+    // res.end(err.message);
+    // when server crashed code 500
+     res.status(500).json({
+      result : err.message
+    })
   }
 }
 
