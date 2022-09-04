@@ -47,37 +47,32 @@ function AuthProvider({ children }) {
       const res = await axios.post("/api/v1/auth/login", {
         email: email,
         password: password,
-      });
-       console.log(res.status);
-      
+      }) 
+        if(res.status ==200){
          userSet(res.data.user);
          setLoading(false);
-      // console.log("40",res.data);
-       
+         return flag;
+        }
     } catch (err) {
        flag = false;
        console.log(err.message);
        if (err.message == "Request failed with status code 404") {
          alert("user not found signup first");
-         flag = false;
        } else if (err.message == "Request failed with status code 400") {
          alert("email and password may be wrong");
-         flag = false;
        } else if (err.message == "Request failed with status code 500") {
          alert("Internal server error");
-         flag = false;
        }
        setLoading(false);
-       return flag;
+        return flag;
     }
-
-    console.log("login will be here");
+   console.log("login will be here");
   }
 
   // logout :
   function logout() {
-    // localStorage.removeItem("user");
-    // userSet(null);
+    localStorage.removeItem("user");
+    userSet(null);
     console.log("logout will come here");
   }
 

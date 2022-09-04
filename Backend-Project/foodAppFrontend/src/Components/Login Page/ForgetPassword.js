@@ -12,19 +12,19 @@ function ForgetPassword() {
         // resqest => forgortPass Route
         try{
            let res = await axios.patch("/api/v1/auth/forgotPassword" , {email});
-              if(res.status ==400){
-                alert("user with this email not found");
-              } else if(res.status ==500){
-                alert("Iternal sever error");
-              } else{
-                   alert("Mail send to your registerd email ID");
-              }
-              // when email is correct
-               setResetEmail(email);
-               // send to your restpasswordPage
-               history.push("/otp");
-        } catch(err){
-            console.log(err.message);
+           console.log(res.status);
+             if(res.status ==201) {
+               alert("Mail send to your registerd email ID");
+               setResetEmail(email); // when email is correct
+               history.push("/otp"); // send to your restpasswordPage
+             }
+           } catch(err){
+           if(err.message =="Request failed with status code 404");
+                 alert("user with this email not found");
+           if(err.message =="Request failed with status code 500");
+                 alert("Internal server error");
+                 
+
         }
 
     }

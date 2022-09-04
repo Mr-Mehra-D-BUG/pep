@@ -26,7 +26,7 @@ async function signupController(req, res) {
 
     // create data in to database
     let newUser = await userModel.create(data);
-    console.log(newUser);
+    // console.log(newUser);
     res.status(201).json({
       result: "user singned up",
     });
@@ -49,21 +49,22 @@ async function loginController(req, res) {
         // if with that email id user is available in server so do somthing else user need to signup first.
         if (user.password === password) {
           //create JWT ==>  paylod (_id) + secret key(secrets.JWTSECRET) + by dafault algo SHA256
-
           const token = jwt.sign(
             {
               data: user["_id"],
-              exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24,
+              exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24, // time limit
             },
-            secrets.JWTSECRET // for the 24 hr valid only using that formula in it.
+            secrets.JWTSECRET 
           );
 
           res.cookie("JWT", token); // res to clint with token inside the cookie
-          user.password = undefined;
+         // before sending user data for profile pass delete for user
+          user.password = undefined;  
           user.ConfirmPassword = undefined;
           res.status(200).json({
-            user,
+            user
           });
+
         } else {
           // 1 status code
           res.status(400).json({
@@ -71,9 +72,6 @@ async function loginController(req, res) {
           });
         }
       } else {
-        // send status code instead of res.send(msg);
-        // 2nd status code when user not found
-
         res.status(404).json({
           result: "user not found",
         });
@@ -86,7 +84,6 @@ async function loginController(req, res) {
     }
   } catch (err) {
     // res.end(err.message);
-    // when server crashed code 500
     res.status(500).json({
       result: err.message,
     });
@@ -119,7 +116,9 @@ async function forgotPasswordController(req, res) {
       });
     }
   } catch (err) {
-    res.end(err.message);
+      res.status(500).json({
+        result : "Internal server error"
+      })
   }
 }
 
@@ -132,53 +131,44 @@ async function forgotPasswordController(req, res) {
 async function resetController(req, res) {
   try {
     let data = req.body;
-    // console.log(data);
     let { otp, password, ConfirmPassword, email } = data;
-    let user = await userModel.findOne({ email });
-    // console.log(user);
-    // get current time
-    const currTime = Date.now();
-    // otp expriy time durtaion. from user Data
-    let givenTime = user.otpExpiry;
-    console.log(givenTime, currTime); //  comparsion among given time and curr time
-    if (currTime > givenTime) {
-      // delete otp and otpExpiry from dataBase
-      user.otp = undefined; //    delete user.otp;
-      user.otpExpiry = undefined; //      delete user.otpExpiry;
-      console.log(user.otpExpiry); // user.save() upadte all changes into the dataBase as well
-      console.log(user.otp); // user.save() upadte all changes into the dataBase as well
-      await user.save();
+    let user = await userModel.findOne({ email : email});
 
-      res.status(200).json({
-        result: "Otp Expired ",
-      });
-      console.log(user, "from");
-    } else {
-      //  when time and otp is under protocol .
-      // check otp and given otp is matched or not. it may be from diifrent user otp.
-      if (user.otp != otp) {
-        console.log(user);
-        res.status(200).json({
-          result: "wrong otp",
-        });
-      } else {
-        console.log(user.otp);
-        user = await userModel.findOneAndUpdate(
-          { otp }, // find
-          { password, ConfirmPassword }, // update
-          { runValidators: true, new: true } // default validator not working without {runValidators : true} eg: confirm pass won't match because validator not come into action with this .
-        );
-        user.otp = undefined; // delete otp and otpExpiry from DataBase
-        user.otpExpiry = undefined;
-        // save the update.
-        await user.save();
-        res.status(201).json({
-          user: user,
-          message: "user password reset",
-        });
-      }
-    }
+    let currTime = Date.now();
+
+    let givenTime = user.otpExpiry;
+        if (currTime > givenTime) {
+          user.otp = undefined;
+          user.otpExpiry = undefined;
+          await user.save();
+
+          res.status(403).json({
+            result: "Otp Expired ",
+          });
+          console.log(user, "from");
+        } else {
+          if (user.otp != otp) {
+            res.status(401).json({
+              result: "wrong otp",
+            });
+          } else {
+            user = await userModel.findOneAndUpdate(
+              { otp, email }, // find
+              { password, ConfirmPassword },
+              { runValidators: true, new: true }
+            );
+            user.otp = undefined;
+            user.otpExpiry = undefined;
+            await user.save();
+             console.log(user);
+            res.status(201).json({
+              user: user,
+              message: "user password reset",
+            });
+          }
+        }
   } catch (err) {
+    console.log(err);
     res.status(500).json({
       result: err.message,
     });

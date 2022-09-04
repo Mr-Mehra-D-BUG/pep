@@ -21,7 +21,7 @@ function PasswordReset() {
         otp: otpPassEmail,
         email: resetPassEmail,
         password: password,
-        confirmPassword: passwordCnf,
+        ConfirmPassword: passwordCnf,
       });
       console.log(res);
       if (res.status == 201) {
@@ -29,12 +29,6 @@ function PasswordReset() {
         setOtpPassEmail(null);
         setResetEmail(null);
         history.push("/login"); // to the login page when all done
-      } else if (res.status == 200) {
-        if (res.message == "Otp Expired") {
-          alert("Otp expried kindly regenerate ");
-        } else if (res.message == "wrong otp") {
-          alert("wrong otp");
-        }
         setOtpPassEmail(null);
         setResetEmail(null);
       }
@@ -43,6 +37,12 @@ function PasswordReset() {
       
       if (err.message == "Request failed with status code 500") {
         alert("Internal server error");
+      }
+      else if (err.message == "Request failed with status code 401") {
+        alert("Invalid otp");
+      }
+     else if (err.message == "Request failed with status code 403") {
+        alert("Otp expired");
       }
       setOtpPassEmail(null);
       setResetEmail(null);
