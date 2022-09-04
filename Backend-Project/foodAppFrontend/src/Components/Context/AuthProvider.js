@@ -13,9 +13,13 @@ function AuthProvider({ children }) {
   // const history = useHistory();
   const [user, userSet] = useState("");
   const [loading, setLoading] = useState(false);
- 
+  const [resetPassEmail, setResetEmail] = useState(null);
+  const [otpPassEmail, setOtpPassEmail] = useState(null);
+
   async function signUp(name, password, email, confirm) {
     try {
+      
+      setLoading(true);
       console.log("signup will be here");
       let res = await axios.post("/api/v1/auth/signup", {
         name: name,
@@ -23,9 +27,16 @@ function AuthProvider({ children }) {
         ConfirmPassword: confirm,
         email,
       });
-      console.log("data", res.data);
+      if (res.status == 201) {
+        alert("user signed up");
+      }
+      setLoading(false);
     } catch (err) {
       console.log("err", err.message);
+      if(err.message == "Request failed with status code 400")
+        alert("imporper user data entry");
+
+      setLoading(false);
     }
   }
 
@@ -33,38 +44,40 @@ function AuthProvider({ children }) {
     let flag = true;
     try {
       setLoading(true);
-       const res = await axios.post("/api/v1/auth/login", {
+      const res = await axios.post("/api/v1/auth/login", {
         email: email,
         password: password,
       });
+       console.log(res.status);
       
-       if(res.status ==404){
-             alert("user not found kindly signup");
-            flag=false;
-      } else if(res.status ==400){
-         alert("Password or email may be wrong");
-         flag = false;
-      } else if(res.status == 500){
-        alert("Internal server error")
-         flag = false;
-      } else{
+         userSet(res.data.user);
+         setLoading(false);
+      // console.log("40",res.data);
        
-            userSet(res.data.user);        
-      }
-      setLoading(false);
-    // console.log("40",res.data);
-       return flag;
     } catch (err) {
-       console.log("ee", flag);
-      console.log(err);
-      setLoading(false);
+       flag = false;
+       console.log(err.message);
+       if (err.message == "Request failed with status code 404") {
+         alert("user not found signup first");
+         flag = false;
+       } else if (err.message == "Request failed with status code 400") {
+         alert("email and password may be wrong");
+         flag = false;
+       } else if (err.message == "Request failed with status code 500") {
+         alert("Internal server error");
+         flag = false;
+       }
+       setLoading(false);
+       return flag;
     }
-   
+
     console.log("login will be here");
   }
+
+  // logout :
   function logout() {
-    localStorage.removeItem("user")
-    userSet(null);
+    // localStorage.removeItem("user");
+    // userSet(null);
     console.log("logout will come here");
   }
 
@@ -73,7 +86,12 @@ function AuthProvider({ children }) {
     login,
     signUp,
     logout,
+    resetPassEmail,
+    setResetEmail,
+    otpPassEmail,
+    setOtpPassEmail
   };
+  
   return (
     <AuthContext.Provider value={value}>
       {/* if not loading show childrens  */}
