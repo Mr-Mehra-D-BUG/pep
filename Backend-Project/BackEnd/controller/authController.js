@@ -6,7 +6,7 @@ const secrets = require("../secret");
 const secret = require("../secret");
 const nodemailer = require("../utilities/nodemailer");
 
-// ******************************** controller function ****************************\\
+// ******************************** controller function *****************************\\
 
 // sign up =>
 /* input :

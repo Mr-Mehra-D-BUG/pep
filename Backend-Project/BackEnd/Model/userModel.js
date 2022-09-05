@@ -58,7 +58,7 @@ let userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: [true, "Email is not enterd"],
-    unique: true,
+    unique: [true , "user with this email already register"]
   },
   phoneNumber: {
     type: String,
@@ -80,5 +80,5 @@ let userSchema = new mongoose.Schema({
   },
 });
 // Model is nothing but similar to collection. it create collection using set of rules .. like given below (collection= foodmodel && Schema/rules => userSchema)
-const userModel = mongoose.model("FoodModel", userSchema); // this line will create model/ collection name Foodmodel who follows userSchema rules.
+const userModel = mongoose.model("userModel", userSchema); // this line will create model/ collection name Foodmodel who follows userSchema rules.
 module.exports = userModel;

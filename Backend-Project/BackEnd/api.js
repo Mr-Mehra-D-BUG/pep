@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const userRouter = require("./routes/userRoutes");
 const authRouter = require("./routes/authRoutes");
+const planRouter = require("./routes/planRoutes");
 
 // userModel with userSchema && and DataBase  Connection
 const userModel = require("./Model/userModel");
@@ -13,8 +14,8 @@ app.use(express.json());
 app.use(cookiePraser());
 // for authentiction routes like login signup.
 app.use("/api/v1/auth", authRouter);
-// for user accesse part eg profile and users data
 app.use("/api/v1/user", userRouter);
+app.use("/api/v1/plan", planRouter);
 
 
 // creating a server at port number 3000
