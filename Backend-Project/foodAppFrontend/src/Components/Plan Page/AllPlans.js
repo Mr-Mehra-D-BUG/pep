@@ -8,9 +8,9 @@ function AllPlans() {
     const [arr, arrset] = useState([]);
     useEffect(async () => {
         try {
-            const data = await axios.get("/api/plans?page=1&&limit=3");
-            console.log(data.data);
-            arrset(data.data.data);
+            const res = await axios.get("/api/v1/plan");
+            // console.log(res.data);
+            arrset(res.data.allPlans);
         } catch (err) {
             console.log(err);
         }
@@ -28,16 +28,15 @@ function AllPlans() {
                             <h3 className='h3'>{ele.name}</h3>
                             <div className='pCard1'>
                                 <div className='priceBox'>
-                                    <div className='price'>Rs {ele.price}</div>
-                                    <div className="duration">/month</div>
+                                    <div className='price'>Rs {ele.price}</div> <div className="duration">/month</div>
                                 </div>
-                                <p className="point">That’s only 2₹ per meal</p>
+                                <p className="point">That’s only  {Math.trunc(ele.price/ele.duration)} rupee per meal</p>
                             </div>
 
                             <div className='pCard2'>
                                 <div className='ppoints'>
                                     <img src={Tick} alt='' className='img' />
-                                    <p className='point'>{ele.duration} meal every day</p>
+                                    <p className='point'>{ele.duration} meal every month</p>
                                 </div>
                                 <div className='ppoints'>
                                     <img src={Tick} alt='' className='img' />

@@ -73,7 +73,7 @@ function PlanDetail() {
             </div>
 
             <div className='reviewBox'>
-                <div className="reviewEnrty">
+                {/* <div className="reviewEnrty">
                     <input type="text" value={review} onChange={(e) => setreview(e.target.value)} />
                     <select name="" id="" className="select" onChange={(e) => { setrate(e.target.value) }}>
                         <option value="5">5 Exellent</option>
@@ -85,7 +85,7 @@ function PlanDetail() {
                     <button className="btn" onClick={handleClick}>
                         Submit
                     </button>
-                </div>
+                </div> */}
                 {
                     arr && arr?.map((ele, key) => (
                         <div className="reviewsCard" key={key}>
